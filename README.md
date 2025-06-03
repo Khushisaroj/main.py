@@ -1,52 +1,102 @@
-=== Telemetry Data Transformation Script ===
+import json, unittest, datetime
 
-Loading input data files...
+with open("./data-1.json","r") as f:
+    jsonData1 = json.load(f)
+with open("./data-2.json","r") as f:
+    jsonData2 = json.load(f)
+with open("./data-result.json","r") as f:
+    jsonExpectedResult = json.load(f)
 
-Testing transformation functions...
-Testing data-1.json transformation (ISO timestamps)...
-Successfully transformed 2 records from format 1
-Testing data-2.json transformation (millisecond timestamps)...
-Successfully transformed 2 records from format 2
 
-Creating unified output with 2 records
-Successfully saved unified data to unified_telemetry_output.json
-Testing data transformation functions...
+def convertFromFormat1 (jsonObject):
 
---- Testing Format 1 Transformation ---
-Format 1 transformed successfully: 2 records
-Sample record: {
-  "device_id": "sensor_001",
-  "timestamp": 1697380225123,
-  "temperature": 23.5,
-  "humidity": 65.2,
-  "pressure": 1013.25,
-  "location": {
-    "lat": 40.7128,
-    "lon": -74.006
-  }
-}
+    locationParts = jsonObject['location'].split('/')
 
---- Testing Format 2 Transformation ---
-Format 2 transformed successfully: 2 records
-Sample record: {
-  "device_id": "sensor_001",
-  "timestamp": 1697374225123,
-  "temperature": 23.5,
-  "humidity": 65.2,
-  "pressure": 1013.25,
-  "location": {
-    "lat": 40.7128,
-    "lon": -74.006
-  }
-}
+    result = {
+        'deviceID': jsonObject['deviceID'],
+        'deviceType': jsonObject['deviceType'],
+        'timestamp': jsonObject['timestamp'],
+        'location': {
+            'country': locationParts[0],
+            'city': locationParts[1],
+            'area': locationParts[2],
+            'factory': locationParts[3],
+            'section': locationParts[4]
+        },
+        'data': {
+            'status': jsonObject['operationStatus'],
+            'temperature': jsonObject['temp']
+        }
+    }
 
---- Testing Timestamp Conversion ---
-ISO timestamp: 2023-10-15T14:30:25.123Z
-Converted to milliseconds: 1697380225123
-Converted back to datetime: 2023-10-15T14:30:25.123000Z
+    return result
 
---- Comparing with Expected Result ---
-✅ SUCCESS: Format 2 transformation matches expected result!
+def convertFromFormat2 (jsonObject):
 
---- Format 1 Transformation Structure Check ---
-✅ SUCCESS: Format 1 transformation produces correct structure!
+    date = datetime.datetime.strptime(
+        jsonObject['timestamp'],
+        '%Y-%m-%dT%H:%M:%S.%fZ'
+    )
+    timestamp = round(
+        (date - datetime.datetime(1970, 1, 1)).total_seconds() * 1000
+    )
+
+    result = {
+        'deviceID': jsonObject['device']['id'],
+        'deviceType': jsonObject['device']['type'],
+        'timestamp': timestamp,
+        'location': {
+            'country': jsonObject['country'],
+            'city': jsonObject['city'],
+            'area': jsonObject['area'],
+            'factory': jsonObject['factory'],
+            'section': jsonObject['section']
+        },
+        'data': jsonObject['data']
+    }
+
+    return result
+
+
+def main (jsonObject):
+
+    result = {}
+
+    if (jsonObject.get('device') == None):
+        result = convertFromFormat1(jsonObject)
+    else:
+        result = convertFromFormat2(jsonObject)
+
+    return result
+
+
+class TestSolution(unittest.TestCase):
+
+    def test_sanity(self):
+
+        result = json.loads(json.dumps(jsonExpectedResult))
+        self.assertEqual(
+            result,
+            jsonExpectedResult
+        )
+
+    def test_dataType1(self):
+
+        result = main (jsonData1)
+        self.assertEqual(
+            result,
+            jsonExpectedResult,
+            'Converting from Type 1 failed'
+        )
+
+    def test_dataType2(self):
+
+        result = main (jsonData2)
+        self.assertEqual(
+            result,
+            jsonExpectedResult,
+            'Converting from Type 2 failed'
+        )
+
+if __name__ == '__main__':
+    unittest.main()
