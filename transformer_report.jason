@@ -1,0 +1,81 @@
+{
+  "transformation_report": {
+    "metadata": {
+      "generated_at": "2025-06-03T10:51:52.881903+00:00",
+      "script_version": "1.0",
+      "report_type": "telemetry_data_transformation"
+    },
+    "input_analysis": {
+      "data_1_json": {
+        "format_type": "ISO timestamp format",
+        "file_size_bytes": 519,
+        "record_count": 2,
+        "timestamp_format": "ISO 8601 strings",
+        "transformation_required": "ISO to milliseconds conversion"
+      },
+      "data_2_json": {
+        "format_type": "Millisecond timestamp format",
+        "file_size_bytes": 450,
+        "record_count": 2,
+        "timestamp_format": "Unix epoch milliseconds",
+        "transformation_required": "Field name mapping"
+      }
+    },
+    "transformation_summary": {
+      "format_1_processing": {
+        "success": true,
+        "records_transformed": 2,
+        "quality_check": {
+          "total": 2,
+          "complete": 2,
+          "completeness": 100.0
+        }
+      },
+      "format_2_processing": {
+        "success": true,
+        "records_transformed": 2,
+        "quality_check": {
+          "total": 2,
+          "complete": 2,
+          "completeness": 100.0
+        }
+      }
+    },
+    "unified_output_analysis": {
+      "total_records": 4,
+      "unique_devices": 2,
+      "device_list": [
+        "sensor_001",
+        "sensor_002"
+      ],
+      "data_completeness": {
+        "total": 4,
+        "complete": 4,
+        "completeness": 100.0
+      },
+      "sensor_statistics": {
+        "temperature": {
+          "min": 23.5,
+          "max": 24.1,
+          "avg": 23.799999999999997
+        },
+        "humidity": {
+          "min": 62.8,
+          "max": 65.2,
+          "avg": 64.0
+        },
+        "pressure": {
+          "min": 1012.98,
+          "max": 1013.25,
+          "avg": 1013.115
+        }
+      }
+    },
+    "validation_status": {
+      "format_1_valid_structure": true,
+      "format_2_matches_expected": true,
+      "transformations_successful": true,
+      "output_files_created": true
+    }
+  }
+}
